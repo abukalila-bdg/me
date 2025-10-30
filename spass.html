@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halaman Rahasia dengan Animasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f9fafb; transition: background-color 0.8s ease; }
+        .fade { transition: opacity 0.6s ease; }
+        .hidden { display: none; }
+        .shake {
+          animation: shake 0.4s ease;
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen">
+
+<div id="login" class="text-center fade">
+    <h2 class="text-2xl font-bold mb-4">Masukkan Password</h2>
+    <label class="text-2xl font-bold mb-4" for="password">Password :</label>
+    <input type="password" id="password" placeholder="Password" class="border rounded p-2">
+    <button onclick="checkPassword()" class="bg-blue-500 text-white px-4 py-2 rounded ml-2">Masuk</button>
+    <p id="error" class="text-red-500 mt-2 hidden">Password salah!</p>
+</div>
+
+<div id="content" class="hidden text-center fade opacity-0">
+    <h1 class="text-3xl font-bold mb-4">🎉 Selamat Datang di Halaman Rahasia!</h1>
+    <p>Konten ini dilindungi dengan password sederhana.</p>
+    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded mt-4">Logout</button>
+</div>
+
+<script>
+    const correctPassword = "Rahasia@2025!";
+
+    function checkPassword() {
+      const input = document.getElementById("password").value;
+      const error = document.getElementById("error");
+      const loginBox = document.getElementById("login");
+
+      if (input === correctPassword) {
+        showContent();
+        document.body.style.backgroundColor = '#d1fae5'; // hijau lembut
+      } else {
+        error.classList.remove("hidden");
+        loginBox.classList.add("shake");
+        setTimeout(() => loginBox.classList.remove("shake"), 400);
+      }
+    }
+
+    function showContent() {
+      const loginDiv = document.getElementById("login");
+      const contentDiv = document.getElementById("content");
+      contentDiv.classList.remove("hidden");
+      setTimeout(() => {
+        loginDiv.style.opacity = 0;
+        setTimeout(() => {
+          loginDiv.classList.add("hidden");
+          contentDiv.style.opacity = 1;
+        }, 600);
+      }, 100);
+    }
+
+    function logout() {
+      const loginDiv = document.getElementById("login");
+      const contentDiv = document.getElementById("content");
+      document.body.style.backgroundColor = '#f9fafb';
+      contentDiv.style.opacity = 0;
+      setTimeout(() => {
+        contentDiv.classList.add("hidden");
+        loginDiv.classList.remove("hidden");
+        loginDiv.style.opacity = 1;
+      }, 600);
+    }
+</script>
+
+</body>
+</html>
