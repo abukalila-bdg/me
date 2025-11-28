@@ -11,7 +11,7 @@ Welcome to the repository for my personal website. This site serves as a profess
 ## Features
 
 - **Monochrome Design**: A clean, professional, and modern aesthetic using a grayscale palette.
-- **Responsive Layout**: Optimized for desktop, tablet, and mobile devices.
+- **Responsive Layout**: Optimized for desktop, tablet, and mobile devices with a **responsive hamburger menu**.
 - **Sections**:
   - **About**: Introduction and professional summary.
   - **Experience**: Detailed career highlights and technical expertise.

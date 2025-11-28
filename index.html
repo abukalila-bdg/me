@@ -62,6 +62,8 @@
   <nav class="fixed w-full bg-white/80 backdrop-blur-md border-b border-gray-100 z-50">
     <div class="max-w-5xl mx-auto flex justify-between items-center py-4 px-6">
       <a href="#" class="text-xl font-bold tracking-tight text-gray-900 hover:text-gray-600 transition">Abu Kalila</a>
+
+      <!-- Desktop Menu -->
       <ul class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
         <li><a href="#about" class="hover:text-gray-900 transition">Tentang</a></li>
         <li><a href="#experience" class="hover:text-gray-900 transition">Pengalaman</a></li>
@@ -70,12 +72,43 @@
         <li><a href="#github" class="hover:text-gray-900 transition">GitHub</a></li>
         <li><a href="#contact" class="hover:text-gray-900 transition">Kontak</a></li>
       </ul>
+
       <a href="#contact"
         class="hidden md:inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900">
         Hubungi Saya
       </a>
+
+      <!-- Mobile Menu Button -->
+      <button id="mobile-menu-btn" class="md:hidden text-gray-900 focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Menu Dropdown -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-4 shadow-lg">
+      <a href="#about" class="block text-gray-600 hover:text-gray-900 font-medium">Tentang</a>
+      <a href="#experience" class="block text-gray-600 hover:text-gray-900 font-medium">Pengalaman</a>
+      <a href="cekcuaca.html" class="block text-gray-600 hover:text-gray-900 font-medium">Cek Cuaca</a>
+      <a href="cekjadwalsolat.html" class="block text-gray-600 hover:text-gray-900 font-medium">Jadwal Solat</a>
+      <a href="#github" class="block text-gray-600 hover:text-gray-900 font-medium">GitHub</a>
+      <a href="#contact" class="block text-gray-600 hover:text-gray-900 font-medium">Kontak</a>
+      <a href="#contact"
+        class="block w-full text-center px-4 py-2 border border-gray-900 text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 transition">
+        Hubungi Saya
+      </a>
     </div>
   </nav>
+
+  <script>
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+
+    btn.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+    });
+  </script>
 
   <!-- Hero Section -->
   <section id="about"
