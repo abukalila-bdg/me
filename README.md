@@ -34,3 +34,14 @@ No build process is required as it uses the CDN version of Tailwind CSS for simp
 ## License
 
 &copy; 2025 Abu Kalila. All rights reserved.
+
+## Deployment & Security
+
+This site uses **Netlify Functions** to hide the OpenWeatherMap API key.
+
+### Environment Variables
+When deploying to Netlify, you **MUST** add the following environment variable in **Site Settings > Build & Deploy > Environment variables**:
+
+- `OPENWEATHER_API_KEY`: `aasdw` (or your own key)
+
+Without this, the weather feature will fail.
