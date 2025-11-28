@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cek Cuaca - Abu Kalila</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
+                            950: '#030712',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body
+    class="bg-white text-gray-900 font-sans antialiased selection:bg-gray-900 selection:text-white flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full bg-white/80 backdrop-blur-md border-b border-gray-100 z-50">
+        <div class="max-w-5xl mx-auto flex justify-between items-center py-4 px-6">
+            <a href="index.html"
+                class="text-xl font-bold tracking-tight text-gray-900 hover:text-gray-600 transition">Abu Kalila</a>
+            <ul class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
+                <li><a href="index.html" class="hover:text-gray-900 transition">Beranda</a></li>
+                <li><a href="cekcuaca.html" class="text-gray-900 font-semibold transition">Cek Cuaca</a></li>
+                <li><a href="cekjadwalsolat.html" class="hover:text-gray-900 transition">Jadwal Solat</a></li>
+            </ul>
+            <a href="index.html#contact"
+                class="hidden md:inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-sm font-medium rounded-lg text-white bg-gray-900 hover:bg-gray-800 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900">
+                Hubungi Saya
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-32 pb-20 px-6">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 mb-4">Cek Cuaca Terkini</h1>
+            <p class="text-lg text-gray-600 mb-10">Dapatkan informasi cuaca akurat berdasarkan lokasi Anda saat ini.</p>
+
+            <div class="bg-gray-50 rounded-2xl border border-gray-100 p-8 shadow-sm max-w-xl mx-auto">
+                <div id="status" class="text-sm text-gray-500 mb-4">Menunggu izin lokasi...</div>
+
+                <div id="weather-container" class="hidden">
+                    <div class="flex flex-col items-center">
+                        <div id="weather-icon" class="text-6xl mb-4">☀️</div>
+                        <div id="temperature" class="text-5xl font-bold text-gray-900 mb-2">-°C</div>
+                        <div id="description" class="text-xl text-gray-600 capitalize mb-6">-</div>
+
+                        <div class="grid grid-cols-2 gap-8 w-full border-t border-gray-200 pt-6">
+                            <div>
+                                <div class="text-sm text-gray-500 mb-1">Kelembapan</div>
+                                <div id="humidity" class="text-lg font-semibold text-gray-900">-%</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-500 mb-1">Kecepatan Angin</div>
+                                <div id="wind-speed" class="text-lg font-semibold text-gray-900">- m/s</div>
+                            </div>
+                        </div>
+
+                        <div id="location-name"
+                            class="mt-6 text-sm font-medium text-gray-400 uppercase tracking-widest">Lokasi</div>
+                    </div>
+                </div>
+
+                <div id="error-message" class="hidden text-red-600 bg-red-50 p-4 rounded-lg text-sm"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-12 mt-auto">
+        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
+            <div class="text-gray-400 text-sm mb-4 md:mb-0">
+                &copy; 2025 Abu Kalila. Data by OpenWeatherMap.
+            </div>
+            <div class="flex space-x-6">
+                <a href="index.html" class="text-gray-400 hover:text-white transition">Beranda</a>
+                <a href="cekjadwalsolat.html" class="text-gray-400 hover:text-white transition">Jadwal Solat</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const OPENWEATHER_API_KEY = '65744da9ddf5f8e0df8b8f9aeac14c0a';
+        const statusEl = document.getElementById('status');
+        const weatherContainer = document.getElementById('weather-container');
+        const errorEl = document.getElementById('error-message');
+
+        // UI Elements
+        const tempEl = document.getElementById('temperature');
+        const descEl = document.getElementById('description');
+        const humEl = document.getElementById('humidity');
+        const windEl = document.getElementById('wind-speed');
+        const locEl = document.getElementById('location-name');
+        const iconEl = document.getElementById('weather-icon');
+
+        function init() {
+            if (!navigator.geolocation) {
+                showError('Geolocation tidak didukung oleh browser ini.');
+                return;
+            }
+
+            statusEl.textContent = 'Meminta izin lokasi...';
+
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                statusEl.textContent = `Lokasi ditemukan. Mengambil data...`;
+
+                try {
+                    await fetchWeather(lat, lon);
+                    statusEl.style.display = 'none';
+                    weatherContainer.classList.remove('hidden');
+                } catch (err) {
+                    showError(err.message);
+                }
+
+            }, (err) => {
+                let msg = 'Gagal mendapatkan lokasi.';
+                if (err.code === 1) msg = 'Izin lokasi ditolak. Mohon izinkan akses lokasi.';
+                else if (err.code === 2) msg = 'Lokasi tidak tersedia.';
+                else if (err.code === 3) msg = 'Waktu permintaan habis.';
+                showError(msg);
+            }, { enableHighAccuracy: false, timeout: 10000 });
+        }
+
+        async function fetchWeather(lat, lon) {
+            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=id&appid=${OPENWEATHER_API_KEY}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`Gagal mengambil data cuaca (Status: ${res.status})`);
+
+            const data = await res.json();
+            updateUI(data);
+        }
+
+        function updateUI(data) {
+            const temp = Math.round(data.main.temp);
+            const desc = data.weather[0].description;
+            const humidity = data.main.humidity;
+            const wind = data.wind.speed;
+            const name = data.name;
+            const iconCode = data.weather[0].icon;
+
+            tempEl.textContent = `${temp}°C`;
+            descEl.textContent = desc;
+            humEl.textContent = `${humidity}%`;
+            windEl.textContent = `${wind} m/s`;
+            locEl.textContent = name;
+
+            // Simple icon mapping or use image from API
+            // Using API icons for accuracy
+            iconEl.innerHTML = `<img src="https://openweathermap.org/img/wn/${iconCode}@2x.png" alt="${desc}" class="w-24 h-24 mx-auto">`;
+        }
+
+        function showError(msg) {
+            statusEl.style.display = 'none';
+            errorEl.textContent = msg;
+            errorEl.classList.remove('hidden');
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+
+</html>
