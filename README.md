@@ -42,6 +42,7 @@ This site uses **Netlify Functions** to hide the OpenWeatherMap API key.
 ### Environment Variables
 When deploying to Netlify, you **MUST** add the following environment variable in **Site Settings > Build & Deploy > Environment variables**:
 
-- `OPENWEATHER_API_KEY`: `aasdw` (or your own key)
+- `OPENWEATHER_API_KEY`: `aaaa` (or your own key)
+- `SECRET_PASSWORD`: `aaaa` (for the protected page `spass.html`)
 
 Without this, the weather feature will fail.
