@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Notifikasi</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Courier New', monospace;
+      background: #1a1a1a;
+      color: #00ff00;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      background: #000;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 2px solid #00ff00;
+      box-shadow: 0 2px 10px rgba(0, 255, 0, 0.3);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: bold;
+      text-shadow: 0 0 10px #00ff00;
+      animation: blink 2s infinite;
+    }
+
+    .header .subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 5px;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      gap: 30px;
+    }
+
+    .stop-selector {
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .stop-selector label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .stop-select {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      font-family: 'Courier New', monospace;
+      background: #000;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .stop-select:hover {
+      background: #001100;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    }
+
+    .stop-select:focus {
+      outline: none;
+      box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+    }
+
+    .controls {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      background: #000;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2));
+      transition: left 0.5s ease;
+    }
+
+    .btn:hover {
+      background: #001100;
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn:hover:before {
+      left: 100%;
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn:disabled:hover {
+      transform: translateY(0);
+      background: #000;
+      box-shadow: none;
+    }
+
+    .btn:disabled:before {
+      left: -100%;
+    }
+
+    .current-stop {
+      text-align: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #00ff00;
+      margin: 20px 0;
+      font-size: 18px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+    }
+
+    .current-stop.playing {
+      animation: pulse 1s infinite;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 12px;
+      opacity: 0.7;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid #00ff00;
+      border-radius: 3px;
+    }
+
+    .wave-animation {
+      display: inline-block;
+      animation: wave 1.5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.5; }
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); }
+      50% { box-shadow: 0 0 20px rgba(0, 255, 0, 0.8); }
+      100% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); }
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: translateY(0); }
+      25% { transform: translateY(-3px); }
+      75% { transform: translateY(3px); }
+    }
+
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #00ff00;
+      animation: scan 3s linear infinite;
+      opacity: 0.3;
+    }
+
+    @keyframes scan {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(100vh); }
+      100% { transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .controls {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="scan-line"></div>
+
+  <div class="header">
+    <h1><span class="wave-animation">🔊</span> SISTEM NOTIFIKASI</h1>
+    <div class="subtitle">Transportation Announcer System</div>
+  </div>
+
+  <div class="main">
+    <div class="stop-selector">
+      <label for="stopSelect">PILIHAN PEMBERHENTIAN:</label>
+      <select id="stopSelect" class="stop-select" onchange="onStopChange()">
+        <option value="">-- PILIHAN PEMBERHENTIAN --</option>
+        <option value="0">01. Terminal Leuwipanjang</option>
+        <option value="1">02. Alun-alun Bandung</option>
+        <option value="2">03. Asia Afrika</option>
+        <option value="3">04. Braga</option>
+        <option value="4">05. Pemberhentian Pertama (Terminal Leuwipanjang)</option>
+        <option value="5">06. Pemberhentian Terakhir (Braga)</option>
+      </select>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="playStop()" id="playBtn">
+        ▶ PLAY
+      </button>
+      <button class="btn" onclick="stopStop()" id="stopBtn">
+        ⏹ STOP
+      </button>
+      <button class="btn" onclick="previousStop()" id="prevBtn">
+        ⏪ PREV
+      </button>
+      <button class="btn" onclick="nextStop()" id="nextBtn">
+        ⏭ NEXT
+      </button>
+      <button class="btn" onclick="testDirectAudio()" id="testBtn">
+        🎵 TEST AUDIO
+      </button>
+    </div>
+
+    <div class="current-stop" id="currentStop">
+      SIAPKAN MAIN ANNOUNCEMENT
+    </div>
+
+    <div class="status" id="status">
+      READY TO PLAY
+    </div>
+  </div>
+
+  <script>
+    // File paths - adjust jika perlu
+    const AUDIO_FILES = [
+      'notifikasi/01_terminal_leuwipanjang.mp3',
+      'notifikasi/02_alun_alun_bandung.mp3',
+      'notifikasi/03_asia_afrika.mp3',
+      'notifikasi/04_braga.mp3',
+      'notifikasi/01_terminal_leuwipanjang.mp3',  // File 5 -> Gunakan file 01
+      'notifikasi/04_braga.mp3'  // File 6 -> Gunakan file 04
+    ];
+
+    const STOP_MESSAGES = [
+      "Pemberhentian berikutnya adalah Terminal Leuwipanjang",
+      "Pemberhentian berikutnya adalah Alun-alun Bandung",
+      "Pemberhentian berikutnya adalah Asia Afrika",
+      "Pemberhentian berikutnya adalah Braga",
+      "Sudah di pemberhentian pertama",
+      "Sudah di pemberhentian terakhir"
+    ];
+
+    let currentAudio = null;
+    let currentStop = -1;
+    let isPlaying = false;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Sistem Notifikasi siap');
+      updateStatus('SISTEM SIAP - PILIH PEMBERHENTIAN');
+
+      // Simple initialization without audio preloading
+      setTimeout(() => {
+        loadAudioFiles();
+      }, 500);
+    });
+
+    // Load all audio files
+    function loadAudioFiles() {
+      AUDIO_FILES.forEach((path, index) => {
+        const audio = new Audio(path);
+
+        audio.addEventListener('canplaythrough', () => {
+          console.log(`Audio loaded: ${path}`);
+        });
+
+        audio.addEventListener('error', (e) => {
+          console.error(`Error loading ${path}:`, e);
+          updateStatus(`ERROR: Tidak bisa load ${path}`);
+        });
+      });
+    };
+
+    function onStopChange() {
+      const select = document.getElementById('stopSelect');
+      const selectedStop = parseInt(select.value);
+
+      if (selectedStop >= 0 && selectedStop < AUDIO_FILES.length) {
+        currentStop = selectedStop;
+        updateCurrentStop();
+      }
+    }
+
+    function playStop() {
+      if (currentStop < 0) {
+        updateStatus('ERROR: PILIH PEMBERHENTIAN DULU');
+        return;
+      }
+
+      if (isPlaying) {
+        stopStop();
+        return;
+      }
+
+      const audioPath = AUDIO_FILES[currentStop];
+      console.log('Attempting to play:', audioPath);
+      updateStatus(`LOADING: ${audioPath}`);
+
+      // Try with TTS fallback
+      tryPlayWithFallback(audioPath);
+    }
+
+    function tryPlayWithFallback(audioPath) {
+      // First try MP3 - using approach from simple_test.html
+      console.log('Trying to play MP3:', audioPath);
+
+      const audio = new Audio();
+      audio.src = audioPath;
+      audio.volume = 1.0;
+      audio.crossOrigin = "anonymous";
+
+      let playAttempted = false;
+      const currentStopIndex = currentStop; // Capture current stop value
+
+      // Try to play immediately (like simple_test.html)
+      audio.play().then(() => {
+        console.log('MP3 playing immediately');
+        playAttempted = true;
+        isPlaying = true;
+        updateStatus(`PLAYING: ${STOP_MESSAGES[currentStopIndex]}`);
+        updateButtonStates();
+        updateCurrentStopClass(true);
+        currentAudio = audio;
+      }).catch(error => {
+        console.error('Immediate play failed:', error);
+
+        // Fallback: wait for canplay event
+        audio.addEventListener('canplay', () => {
+          console.log('Audio can play now');
+          if (!playAttempted) {
+            playAttempted = true;
+            audio.play().then(() => {
+              console.log('MP3 playing after canplay');
+              isPlaying = true;
+              updateStatus(`PLAYING: ${STOP_MESSAGES[currentStopIndex]}`);
+              updateButtonStates();
+              updateCurrentStopClass(true);
+              currentAudio = audio;
+            }).catch(error => {
+              console.error('Play failed after canplay:', error);
+              fallbackToTTS();
+            });
+          }
+        });
+
+        audio.addEventListener('error', () => {
+          console.error('MP3 load failed');
+          if (!playAttempted) {
+            fallbackToTTS();
+          }
+        });
+      });
+
+      audio.addEventListener('ended', () => {
+        console.log('Audio ended');
+        isPlaying = false;
+        updateStatus('SELESAI');
+        updateButtonStates();
+        updateCurrentStopClass(false);
+      });
+
+      // Load audio
+      audio.load();
+
+      // Fallback after timeout
+      setTimeout(() => {
+        if (!playAttempted) {
+          console.log('Audio loading timeout, falling back to TTS');
+          fallbackToTTS();
+        }
+      }, 3000);
+    }
+
+    function fallbackToTTS() {
+      const currentStopIndex = currentStop; // Capture current stop value
+      console.log('Using TTS fallback for:', currentStopIndex);
+      updateStatus(`PLAYING (TTS): ${STOP_MESSAGES[currentStopIndex]}`);
+
+      const text = STOP_MESSAGES[currentStopIndex];
+      const utterance = new SpeechSynthesisUtterance(text);
+
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      utterance.lang = "id-ID";
+
+      // Find Indonesian voice
+      const allVoices = speechSynthesis.getVoices();
+      const indonesianVoice = allVoices.find(v => v.lang.startsWith('id'));
+
+      if (indonesianVoice) {
+        utterance.voice = indonesianVoice;
+        console.log('Using Indonesian voice:', indonesianVoice.name);
+      }
+
+      utterance.onstart = () => {
+        isPlaying = true;
+        updateStatus(`PLAYING (TTS): ${STOP_MESSAGES[currentStop]}`);
+        updateButtonStates();
+        updateCurrentStopClass(true);
+      };
+
+      utterance.onend = () => {
+        isPlaying = false;
+        updateStatus('TTS SELESAI');
+        updateButtonStates();
+        updateCurrentStopClass(false);
+      };
+
+      utterance.onerror = (event) => {
+        console.error('TTS error:', event);
+        isPlaying = false;
+        updateStatus('TTS ERROR - No audio available');
+        updateButtonStates();
+        updateCurrentStopClass(false);
+      };
+
+      // Create dummy audio object for stop functionality
+      currentAudio = {
+        pause: () => {
+          speechSynthesis.cancel();
+          isPlaying = false;
+          updateStatus('TTS STOPPED');
+          updateButtonStates();
+          updateCurrentStopClass(false);
+        }
+      };
+
+      // Speak
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel(); // Cancel any previous speech
+        speechSynthesis.speak(utterance);
+      } else {
+        updateStatus('TTS NOT SUPPORTED');
+        updateButtonStates();
+        updateCurrentStopClass(false);
+      }
+    }
+
+    function stopStop() {
+      if (currentAudio && isPlaying) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        isPlaying = false;
+        updateStatus('DIHENTIKAN');
+        updateButtonStates();
+        updateCurrentStopClass(false);
+      }
+    }
+
+    function previousStop() {
+      if (currentStop > 0) {
+        currentStop--;
+        document.getElementById('stopSelect').value = currentStop;
+        updateCurrentStop();
+
+        if (isPlaying) {
+          stopStop();
+          setTimeout(() => playStop(), 500);
+        }
+      } else {
+        updateStatus('SUDAH DI PERTAMA');
+      }
+    }
+
+    function nextStop() {
+      if (currentStop < STOP_MESSAGES.length - 1) {
+        currentStop++;
+        document.getElementById('stopSelect').value = currentStop;
+        updateCurrentStop();
+
+        if (isPlaying) {
+          stopStop();
+          setTimeout(() => playStop(), 500);
+        }
+      } else {
+        updateStatus('SUDAH DI AKHIR');
+      }
+    }
+
+    function updateCurrentStop() {
+      const currentStopDiv = document.getElementById('currentStop');
+      if (currentStop >= 0) {
+        currentStopDiv.textContent = STOP_MESSAGES[currentStop];
+        currentStopDiv.style.display = 'flex';
+      } else {
+        currentStopDiv.textContent = 'SIAPKAN MAIN ANNOUNCEMENT';
+      }
+    }
+
+    function updateCurrentStopClass(isPlaying) {
+      const currentStopDiv = document.getElementById('currentStop');
+      if (isPlaying) {
+        currentStopDiv.classList.add('playing');
+      } else {
+        currentStopDiv.classList.remove('playing');
+      }
+    }
+
+    function updateButtonStates() {
+      const playBtn = document.getElementById('playBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      if (isPlaying) {
+        playBtn.textContent = '⏸ PAUSE';
+        stopBtn.disabled = false;
+      } else {
+        playBtn.textContent = '▶ PLAY';
+        stopBtn.disabled = true;
+      }
+
+      prevBtn.disabled = (currentStop <= 0);
+      nextBtn.disabled = (currentStop >= STOP_MESSAGES.length - 1);
+    }
+
+    function updateStatus(message) {
+      document.getElementById('status').textContent = message;
+    }
+
+    function testDirectAudio() {
+      console.log('Testing direct audio playback...');
+      updateStatus('TESTING AUDIO PLAYBACK...');
+
+      // Test with the first MP3 file
+      const testAudio = new Audio('notifikasi/01_terminal_leuwipanjang.mp3');
+
+      testAudio.addEventListener('canplay', () => {
+        console.log('Test audio can play');
+        testAudio.play();
+      });
+
+      testAudio.addEventListener('play', () => {
+        console.log('Test audio playing');
+        updateStatus('TEST AUDIO PLAYING - Check volume!');
+      });
+
+      testAudio.addEventListener('ended', () => {
+        console.log('Test audio ended');
+        updateStatus('TEST AUDIO COMPLETED');
+      });
+
+      testAudio.addEventListener('error', (e) => {
+        console.error('Test audio error:', e);
+        console.error('Test audio error details:', testAudio.error);
+        updateStatus(`TEST AUDIO FAILED: ${testAudio.error ? testAudio.error.message : 'Unknown error'}`);
+      });
+
+      testAudio.addEventListener('loadstart', () => {
+        console.log('Test audio loading started');
+        updateStatus('LOADING TEST AUDIO...');
+      });
+
+      testAudio.addEventListener('loadedmetadata', () => {
+        console.log('Test audio metadata loaded');
+        console.log('Duration:', testAudio.duration);
+        updateStatus(`TEST AUDIO LOADED - Duration: ${testAudio.duration}s`);
+      });
+
+      // Set volume to maximum
+      testAudio.volume = 1.0;
+
+      // Try to load and play
+      testAudio.load();
+
+      // Fallback: try direct play after 1 second
+      setTimeout(() => {
+        if (testAudio.paused) {
+          console.log('Fallback: attempting direct play');
+          testAudio.play().catch(error => {
+            console.error('Fallback play failed:', error);
+            updateStatus(`FALLBACK PLAY FAILED: ${error.message}`);
+          });
+        }
+      }, 1000);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      switch(e.key) {
+        case ' ':
+        case 'Enter':
+          playStop();
+          break;
+        case 'Escape':
+          stopStop();
+          break;
+        case 'ArrowLeft':
+          previousStop();
+          break;
+        case 'ArrowRight':
+          nextStop();
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (currentStop > 0) {
+            currentStop = 0;
+            document.getElementById('stopSelect').value = currentStop;
+            updateCurrentStop();
+          }
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          if (currentStop < STOP_MESSAGES.length - 1) {
+            currentStop = STOP_MESSAGES.length - 1;
+            document.getElementById('stopSelect').value = currentStop;
+            updateCurrentStop();
+          }
+          break;
+      }
+    });
+  </script>
+</body>
+</html>
