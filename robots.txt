@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abukalila.netlify.app/sitemap.xml
